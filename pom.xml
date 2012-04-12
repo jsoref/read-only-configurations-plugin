@@ -7,13 +7,30 @@
         <version>1.425</version>
     </parent>
 
-    <groupId>jenkins.ci.plugins.computerqueue</groupId>
-    <artifactId>Readonly-configuration</artifactId>
+    <artifactId>read-only-configurations</artifactId>
     <version>1.0-SNAPSHOT</version>
+    <name>Read-only configurations</name>
     <packaging>hpi</packaging>
+    <url>https://wiki.jenkins-ci.org/display/JENKINS/Read-only+configurations+plugin</url>
   
+  <developers>
+    <developer>
+      <id>lvotypko</id>
+      <name>Lucie Votypkova</name>
+      <email>lvotypko@redhat.com</email>
+    </developer>
+  </developers>
+  
+  <distributionManagement>
+    <repository>
+      <id>maven.jenkins-ci.org</id>
+      <url>http://maven.jenkins-ci.org:8081/content/repositories/releases/</url>
+    </repository>
+  </distributionManagement>
 
-  <!-- get every artifact through maven.glassfish.org, which proxies all the artifacts that we need -->
+
+
+  <!-- 
     <repositories>
         <repository>
             <id>m.g.o-public</id>
@@ -27,6 +44,13 @@
             <id>m.g.o-public</id>
             <url>http://maven.glassfish.org/content/groups/public/</url>
         </pluginRepository>
-    </pluginRepositories>
+    </pluginRepositories>-->
+    
+     <scm>
+    <connection>scm:git:ssh://github.com/jenkinsci/Read-only-configurations.git</connection>
+    <developerConnection>scm:git:ssh://git@github.com/jenkinsci/Read-only-configurations.git</developerConnection>
+    <url>https://github.com/jenkinsci/Read-only-configurations</url>
+  </scm>
+    
 
 </project>
