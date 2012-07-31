@@ -47,8 +47,8 @@
     </pluginRepositories>-->
     
      <scm>
-    <connection>scm:git:ssh://github.com/jenkinsci/read-only-configurations-plugin.git/</connection>
-    <developerConnection>scm:git:ssh://git@github.com/jenkinsci/read-only-configurations-plugin.git/</developerConnection>
+    <connection>scm:git:git://github.com/jenkinsci/read-only-configurations-plugin.git/</connection>
+    <developerConnection>scm:git://git@github.com/jenkinsci/read-only-configurations-plugin.git/</developerConnection>
     <url>https://github.com/jenkinsci/read-only-configurations-plugin/</url>
   </scm>
     
