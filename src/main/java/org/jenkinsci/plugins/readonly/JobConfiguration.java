@@ -1,6 +1,7 @@
 package org.jenkinsci.plugins.readonly;
 
 import hudson.model.AbstractProject;
+import hudson.model.Action;
 import hudson.model.Job;
 import hudson.model.ProminentProjectAction;
 import java.io.ByteArrayOutputStream;
@@ -11,6 +12,7 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.servlet.ServletException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
@@ -23,11 +25,9 @@ import org.kohsuke.stapler.Stapler;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 import org.kohsuke.stapler.WebApp;
-import org.kohsuke.stapler.bind.JavaScriptMethod;
 import org.kohsuke.stapler.jelly.DefaultScriptInvoker;      
 import org.kohsuke.stapler.jelly.HTMLWriterOutput;
 import org.kohsuke.stapler.jelly.JellyClassLoaderTearOff;
-import org.kohsuke.stapler.jelly.JellyClassTearOff;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
@@ -36,7 +36,7 @@ import org.xml.sax.SAXException;
  * 
  * @author Lucie Votypkova
  */
-public class JobConfiguration implements ProminentProjectAction {
+public class JobConfiguration implements Action {
 
     private AbstractProject<?, ?> project;
 
@@ -70,11 +70,15 @@ public class JobConfiguration implements ProminentProjectAction {
     }
 
     public String getDisplayName() {
-        return "Job configuration";
+        return "Read-only job configuration";
     }
 
     public String getUrlName() {
         return "configure-readonly";
+    }
+    
+    public boolean isAvailable() throws IOException, ServletException{
+        return ReadOnlyUtil.isAvailableJobConfiguration(project);
     }
     
     public String getConfigContent(){

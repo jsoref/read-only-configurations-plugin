@@ -1,0 +1,15 @@
+<!--
+  Config page. derived class specific entries should go to configure-entries.jsp
+-->
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:i="jelly:fmt">
+  <tr>
+    <td class="setting-leftspace"><st:nbsp/></td>
+    <td class="setting-name">
+      <b><j:out value="Job Configuration: " /></b>
+    </td>
+    <td class="setting-main">
+      <f:checkbox name="displayForReadOnlyPermission" title="Display for users without access to editable configuration" value="${instance.displayForReadOnlyPermission}" checked="${instance.displayForReadOnlyPermission}"/>
+    </td>
+  </tr>
+</j:jelly>

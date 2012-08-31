@@ -1,6 +1,11 @@
 package org.jenkinsci.plugins.readonly;
 
+import hudson.Functions;
+import hudson.model.AbstractProject;
+import hudson.model.User;
+import hudson.security.Permission;
 import java.io.IOException;
+import javax.servlet.ServletException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
@@ -67,5 +72,16 @@ public class ReadOnlyUtil {
     public static String readonlyOption(String tag) {
         tag = tag.replace("<option", "<option disabled=\"disabled\"");
         return tag;
+    }
+    
+    public static boolean isAvailableJobConfiguration(AbstractProject target) throws IOException, ServletException{
+        User user = User.current();
+        if(user==null || user.getProperty(UserConfiguration.class).getDisplayForReadOnlyPermission()){
+            return (!(Functions.hasPermission(target, target.CONFIGURE) || Functions.hasPermission(target, target.EXTENDED_READ))) && Functions.hasPermission(target, target.READ);
+        }
+        else{
+            return true;
+        }       
+        
     }
 }
