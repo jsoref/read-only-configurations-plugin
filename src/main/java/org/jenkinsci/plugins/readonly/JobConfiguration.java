@@ -3,25 +3,20 @@ package org.jenkinsci.plugins.readonly;
 import hudson.model.AbstractProject;
 import hudson.model.Action;
 import hudson.model.Job;
-import hudson.model.ProminentProjectAction;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.io.StringReader;
 import java.net.URL;
-import java.nio.charset.Charset;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.ServletException;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
 import jenkins.model.Jenkins;
 import org.apache.commons.jelly.JellyContext;
-import org.apache.commons.jelly.JellyException;
 import org.apache.commons.jelly.Script;
 import org.kohsuke.stapler.MetaClass;
-import org.kohsuke.stapler.Stapler;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 import org.kohsuke.stapler.WebApp;
@@ -29,7 +24,6 @@ import org.kohsuke.stapler.jelly.DefaultScriptInvoker;
 import org.kohsuke.stapler.jelly.HTMLWriterOutput;
 import org.kohsuke.stapler.jelly.JellyClassLoaderTearOff;
 import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
 
 /**
  * Display Job configuration page in read-only form
@@ -101,23 +95,30 @@ public class JobConfiguration implements Action {
         }
     }
     
+    public void doIndex(StaplerRequest request, StaplerResponse response) throws IOException {
+        transformToReadOnly(request, response);        
+    }
+    
     /**
     * Transformation of html code which modify all formular's items to read-only
     * 
     */
-    public void transformToReadOnly() throws IOException, JellyException, SAXException, ParserConfigurationException, TransformerConfigurationException, TransformerException {
-            DefaultScriptInvoker invoker = new DefaultScriptInvoker();
-            StaplerRequest request = Stapler.getCurrentRequest();
-            StaplerResponse response = Stapler.getCurrentResponse();
-            MetaClass c = WebApp.get(request.getServletContext()).getMetaClass(project.getClass());
-            ByteArrayOutputStream out = new ByteArrayOutputStream(); 
-            HTMLWriterOutput xmlOutput = HTMLWriterOutput.create(out);
-            Script script = compileScript();           
-            xmlOutput.useHTML(true);          
-            invoker.invokeScript(request, response, script, project, xmlOutput);
-            String charset = Charset.defaultCharset().name();
-            String page = ReadOnlyUtil.transformInputsToReadOnly(out.toString(charset));          
-            response.getOutputStream().write(page.getBytes());
+    public void transformToReadOnly(StaplerRequest request, StaplerResponse response) throws IOException {
+            try {
+                DefaultScriptInvoker invoker = new DefaultScriptInvoker();
+                ByteArrayOutputStream out = new ByteArrayOutputStream(); 
+                HTMLWriterOutput xmlOutput = HTMLWriterOutput.create(out);
+                Script script = compileScript();           
+                xmlOutput.useHTML(true);          
+                invoker.invokeScript(request, response, script, project, xmlOutput);       
+                String page = ReadOnlyUtil.transformInputsToReadOnly(out.toString("UTF-8"));  
+                OutputStream output = response.getCompressedOutputStream(request);
+                output.write(page.getBytes());
+                output.close();
+            }
+            catch(Exception ex){
+                ex.printStackTrace(new PrintStream(response.getOutputStream()));
+            }
     }
     
 }

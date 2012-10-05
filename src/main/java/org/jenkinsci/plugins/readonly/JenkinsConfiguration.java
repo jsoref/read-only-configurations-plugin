@@ -1,19 +1,19 @@
 package org.jenkinsci.plugins.readonly;
 
 import hudson.Extension;
-import hudson.model.Hudson;
 import hudson.model.RootAction;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.PrintStream;
 import java.io.StringReader;
 import java.net.URL;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.zip.GZIPOutputStream;
 import org.apache.commons.jelly.Script;
 import org.kohsuke.stapler.MetaClass;
-import org.kohsuke.stapler.Stapler;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 import org.kohsuke.stapler.WebApp;
@@ -85,15 +85,17 @@ public class JenkinsConfiguration implements RootAction {
 
     public String getUrlName() {
         return "configure-readonly";
+    }  
+    
+    public void doIndex(StaplerRequest request, StaplerResponse response) throws IOException{
+        transformToReadOnly(request, response);        
     }
-
+    
     /**
      * Transformation of html code which modify all formular's items to read-only
      * 
      */
-    public void transformToReadOnly() throws IOException {
-        StaplerRequest request = Stapler.getCurrentRequest();
-        StaplerResponse response = Stapler.getCurrentResponse();
+    public void transformToReadOnly(StaplerRequest request, StaplerResponse response) throws IOException {
         try {
             if (configScript == null) {
                 configScript = compileScript();
@@ -104,7 +106,9 @@ public class JenkinsConfiguration implements RootAction {
             xmlOutput.useHTML(true);
             invoker.invokeScript(request, response, configScript, Jenkins.getInstance(), xmlOutput);
             String page = ReadOnlyUtil.transformInputsToReadOnly(output.toString());
-            response.getOutputStream().write(page.getBytes());
+            OutputStream st = (GZIPOutputStream) response.getCompressedOutputStream(request);
+            st.write(page.getBytes());
+            st.close();
         } catch (Exception ex) {
             ex.printStackTrace(new PrintStream(response.getOutputStream()));
         }
