@@ -10,20 +10,17 @@ import hudson.security.Permission;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.io.StringReader;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
 import jenkins.model.Jenkins;
 import org.apache.commons.jelly.JellyContext;
-import org.apache.commons.jelly.JellyException;
 import org.apache.commons.jelly.Script;
 import org.kohsuke.stapler.MetaClass;
-import org.kohsuke.stapler.Stapler;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 import org.kohsuke.stapler.WebApp;
@@ -31,7 +28,6 @@ import org.kohsuke.stapler.jelly.DefaultScriptInvoker;
 import org.kohsuke.stapler.jelly.HTMLWriterOutput;
 import org.kohsuke.stapler.jelly.JellyClassLoaderTearOff;
 import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
 
 /**
  * Read-only configuration for computers (@link Computer)
@@ -107,11 +103,13 @@ public class SlaveConfiguration implements Action{
         }
     }
     
-    public void transformToReadOnly() throws IOException, JellyException, SAXException, ParserConfigurationException, TransformerConfigurationException, TransformerException {
+    public void doIndex(StaplerRequest request, StaplerResponse response) throws IOException {
+        transformToReadOnly(request, response);        
+    }
+    
+    public void transformToReadOnly(StaplerRequest request, StaplerResponse response) throws IOException {
+        try{
             DefaultScriptInvoker invoker = new DefaultScriptInvoker();
-            StaplerRequest request = Stapler.getCurrentRequest();
-            StaplerResponse response = Stapler.getCurrentResponse();
-            MetaClass c = WebApp.get(request.getServletContext()).getMetaClass(computer.getClass());
             ByteArrayOutputStream out = new ByteArrayOutputStream(); 
             HTMLWriterOutput xmlOutput = HTMLWriterOutput.create(out);
             Script script = compileScript();           
@@ -119,7 +117,13 @@ public class SlaveConfiguration implements Action{
             invoker.invokeScript(request, response, script, computer, xmlOutput);
             String charset = Charset.defaultCharset().name();
             String page = ReadOnlyUtil.transformInputsToReadOnly(out.toString(charset));          
-            response.getOutputStream().write(page.getBytes());
+            OutputStream output = response.getCompressedOutputStream(request);
+            output.write(page.getBytes());
+            output.close();
+        }
+        catch(Exception ex){
+            ex.printStackTrace(new PrintStream(response.getOutputStream()));
+        }
     }
     
 }

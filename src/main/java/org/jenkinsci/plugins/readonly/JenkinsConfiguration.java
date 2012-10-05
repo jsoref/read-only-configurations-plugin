@@ -11,7 +11,6 @@ import java.io.StringReader;
 import java.net.URL;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.zip.GZIPOutputStream;
 import org.apache.commons.jelly.Script;
 import org.kohsuke.stapler.MetaClass;
 import org.kohsuke.stapler.StaplerRequest;
@@ -106,7 +105,7 @@ public class JenkinsConfiguration implements RootAction {
             xmlOutput.useHTML(true);
             invoker.invokeScript(request, response, configScript, Jenkins.getInstance(), xmlOutput);
             String page = ReadOnlyUtil.transformInputsToReadOnly(output.toString());
-            OutputStream st = (GZIPOutputStream) response.getCompressedOutputStream(request);
+            OutputStream st = response.getCompressedOutputStream(request);
             st.write(page.getBytes());
             st.close();
         } catch (Exception ex) {
