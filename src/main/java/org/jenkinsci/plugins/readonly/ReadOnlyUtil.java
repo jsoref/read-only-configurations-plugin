@@ -54,6 +54,13 @@ public class ReadOnlyUtil {
                 tag = tag.replace("<input", "<input readonly=\"readonly\"");
             } else {
                 tag = tag.replace("<input", "<input disabled=\"disabled\"");
+                if(tag.contains("type=\"password\"")){
+                    String attributes[] = tag.split(" ");
+                    for(String attribute: attributes){
+                        if(attribute.contains("value=\""))
+                            tag = tag.replace(attribute, "value=\"*****\"");
+                    }
+                }
             }
         }
         return tag;
