@@ -49,7 +49,7 @@ public class ReadOnlyUtil {
 
     
     public static String readonlyInput(String tag) {
-        if (!(tag.contains("class=\"advancedButton\"") || tag.contains("id=\"search-box\""))) {
+        if (!(tag.matches("(.*)[class=\"]([^\"]*)[advancedButton]([^\"]*)\"(.*)") || tag.contains("id=\"search-box\""))) {
             if (tag.contains("type=\"text\"")) {
                 tag = tag.replace("<input", "<input readonly=\"readonly\"");
             } else {
