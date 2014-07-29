@@ -30,6 +30,7 @@ public class ReadOnlyUtil {
             }
             int end = buffer.indexOf(">", position);
             String tag = buffer.substring(position, end);
+            System.out.println("tag " + tag);
             if (tag.startsWith("<input")) {
                 String replacement = readonlyInput(tag);
                 buffer.replace(position, end, replacement);
@@ -49,11 +50,11 @@ public class ReadOnlyUtil {
 
     
     public static String readonlyInput(String tag) {
-        if (!(tag.matches("(.*)[class=\"]([^\"]*)[advancedButton]([^\"]*)\"(.*)") || tag.contains("id=\"search-box\""))) {
+        if (!(tag.matches("(.*)[class=\"]([^\"]*)advancedButton(.*)") || tag.contains("id=\"search-box\""))) {
             if (tag.contains("type=\"text\"")) {
                 tag = tag.replace("<input", "<input readonly=\"readonly\"");
-            } else {
-                tag = tag.replace("<input", "<input disabled=\"disabled\"");
+            } else { 
+                tag = tag.replace("<input", "<input disabled=\"disabled\" readonly=\"readonly\""); //there is a lot of types which is not text
                 if(tag.contains("type=\"password\"")){
                     String attributes[] = tag.split(" ");
                     for(String attribute: attributes){
@@ -67,9 +68,21 @@ public class ReadOnlyUtil {
     }
 
     public static String readonlyTextArea(String tag) {
-        if (tag.contains("setting-input  codemirror")) {
-
-            tag = tag.replace("setting-input  codemirror", "setting-input");
+        System.out.println("tag " +tag);
+        if (tag.contains("codemirror")) {
+            int position = 0;
+            StringBuffer buffer = new StringBuffer(tag);
+            while(true){
+                position = buffer.indexOf("codemirror", position);
+                if (position == -1) {
+                    break;
+                }
+                int end = buffer.indexOf("\"", position);
+                end = buffer.indexOf("\"", end);
+                buffer.replace(position, end, "");
+                tag = buffer.toString();
+                System.out.println("replaced " + tag);
+            }
         }
         tag = tag.replace("<textarea", "<textarea readonly=\"readonly\"");
 

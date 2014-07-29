@@ -51,7 +51,7 @@ public class JobConfiguration implements Action {
             JellyContext context = new JellyClassLoaderTearOff(c.classLoader).createContext();
             StringReader buffer = new StringReader(getConfigContent());
             InputSource source = new InputSource(buffer);
-            source.setSystemId(JenkinsConfiguration.class.getResource("JobConfiguration").toString());
+            source.setSystemId("org.jenkinsci.plugins.readonly.JobConfiguration");
             result = context.compileScript(source);
         } catch (Exception ex) {
             Logger.getLogger(JobConfiguration.class.getName()).log(Level.WARNING, "Read-only configuration plugin failed to compile script", ex);

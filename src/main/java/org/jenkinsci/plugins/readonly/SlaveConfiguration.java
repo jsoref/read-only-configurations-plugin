@@ -17,10 +17,13 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.servlet.ServletException;
 import jenkins.model.Jenkins;
 import org.apache.commons.jelly.JellyContext;
 import org.apache.commons.jelly.Script;
+import org.kohsuke.stapler.Ancestor;
 import org.kohsuke.stapler.MetaClass;
+import org.kohsuke.stapler.Stapler;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 import org.kohsuke.stapler.WebApp;
@@ -75,7 +78,7 @@ public class SlaveConfiguration implements Action{
             JellyContext context = new JellyClassLoaderTearOff(c.classLoader).createContext();
             StringReader buffer = new StringReader(getConfigContent());
             InputSource source = new InputSource(buffer);
-            source.setSystemId(JenkinsConfiguration.class.getResource("SlaveConfiguration").toString());
+            source.setSystemId("org.jenkinsci.plugins.readonly.SlaveConfiguration");
             result = context.compileScript(source);
         } catch (Exception ex) {
             Logger.getLogger(JobConfiguration.class.getName()).log(Level.WARNING, "Read-only configuration plugin failed to compile script", ex);
@@ -124,6 +127,11 @@ public class SlaveConfiguration implements Action{
         catch(Exception ex){
             ex.printStackTrace(new PrintStream(response.getOutputStream()));
         }
+    }
+    
+    public void getDynamic(String token, StaplerRequest request, StaplerResponse response) throws ServletException, IOException{
+        //actions on the page have relative path, so redirect it on correct url wihtou read-only configuration part
+        response.sendRedirect("/" + computer.getUrl() + token);
     }
     
 }

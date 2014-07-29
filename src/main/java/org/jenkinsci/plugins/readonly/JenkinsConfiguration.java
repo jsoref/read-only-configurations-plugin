@@ -65,7 +65,7 @@ public class JenkinsConfiguration implements RootAction {
             JellyContext context = new JellyClassLoaderTearOff(c.classLoader).createContext();
             StringReader buffer = new StringReader(configFileContent);
             InputSource source = new InputSource(buffer);
-            source.setSystemId(JenkinsConfiguration.class.getResource("JenkinsConfiguration").toString());
+            source.setSystemId("org.jenkinsci.plugins.readonly.JenkinsConfiguration");
             result = context.compileScript(source);
         } catch (Exception ex) {
             log.log(Level.WARNING, "Read-only configuration plugin failed to compile script", ex);
