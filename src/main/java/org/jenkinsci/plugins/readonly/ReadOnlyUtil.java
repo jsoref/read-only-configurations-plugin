@@ -30,7 +30,10 @@ public class ReadOnlyUtil {
             }
             int end = buffer.indexOf(">", position);
             String tag = buffer.substring(position, end);
-            System.out.println("tag " + tag);
+            if(tag.startsWith("<iframe")){
+                position = handleIFrames(buffer, position);
+                continue;
+            }
             if (tag.startsWith("<input")) {
                 String replacement = readonlyInput(tag);
                 buffer.replace(position, end, replacement);
@@ -46,6 +49,13 @@ public class ReadOnlyUtil {
             position=end;
         }
         return buffer.toString();
+    }
+    
+    
+    protected static int handleIFrames(StringBuffer buffer, int startFrame){
+        int endFrame = buffer.indexOf("</iframe>",startFrame) + 9;
+        buffer.replace(startFrame, endFrame, "");
+        return endFrame;
     }
 
     
@@ -68,7 +78,6 @@ public class ReadOnlyUtil {
     }
 
     public static String readonlyTextArea(String tag) {
-        System.out.println("tag " +tag);
         if (tag.contains("codemirror")) {
             int position = 0;
             StringBuffer buffer = new StringBuffer(tag);
@@ -81,7 +90,6 @@ public class ReadOnlyUtil {
                 end = buffer.indexOf("\"", end);
                 buffer.replace(position, end, "");
                 tag = buffer.toString();
-                System.out.println("replaced " + tag);
             }
         }
         tag = tag.replace("<textarea", "<textarea readonly=\"readonly\"");
