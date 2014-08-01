@@ -111,7 +111,7 @@ public class JobConfiguration implements Action {
                 Script script = compileScript();           
                 xmlOutput.useHTML(true);          
                 invoker.invokeScript(request, response, script, project, xmlOutput);       
-                String page = ReadOnlyUtil.transformInputsToReadOnly(out.toString("UTF-8"));  
+                String page = ReadOnlyUtil.transformInputsToReadOnly(out.toString("UTF-8"), null);  
                 OutputStream output = response.getCompressedOutputStream(request);
                 output.write(page.getBytes());
                 output.close();

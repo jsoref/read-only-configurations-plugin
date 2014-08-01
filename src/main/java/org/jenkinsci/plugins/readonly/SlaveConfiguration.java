@@ -119,7 +119,8 @@ public class SlaveConfiguration implements Action{
             xmlOutput.useHTML(true);          
             invoker.invokeScript(request, response, script, computer, xmlOutput);
             String charset = Charset.defaultCharset().name();
-            String page = ReadOnlyUtil.transformInputsToReadOnly(out.toString(charset));          
+            String taskUrl = request.getContextPath() + "/" + computer.getUrl();
+            String page = ReadOnlyUtil.transformInputsToReadOnly(out.toString(charset), taskUrl);          
             OutputStream output = response.getCompressedOutputStream(request);
             output.write(page.getBytes());
             output.close();
@@ -127,11 +128,6 @@ public class SlaveConfiguration implements Action{
         catch(Exception ex){
             ex.printStackTrace(new PrintStream(response.getOutputStream()));
         }
-    }
-    
-    public void getDynamic(String token, StaplerRequest request, StaplerResponse response) throws ServletException, IOException{
-        //actions on the page have relative path, so redirect it on correct url wihtou read-only configuration part
-        response.sendRedirect("/" + computer.getUrl() + token);
     }
     
 }

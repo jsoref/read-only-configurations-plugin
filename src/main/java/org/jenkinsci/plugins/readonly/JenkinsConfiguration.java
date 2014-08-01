@@ -101,7 +101,7 @@ public class JenkinsConfiguration implements RootAction {
             HTMLWriterOutput xmlOutput = HTMLWriterOutput.create(output);
             xmlOutput.useHTML(true);
             invoker.invokeScript(request, response, configScript, Jenkins.getInstance(), xmlOutput);
-            String page = ReadOnlyUtil.transformInputsToReadOnly(output.toString());
+            String page = ReadOnlyUtil.transformInputsToReadOnly(output.toString(),null);
             OutputStream st = response.getCompressedOutputStream(request);
             st.write(page.getBytes());
             st.close();

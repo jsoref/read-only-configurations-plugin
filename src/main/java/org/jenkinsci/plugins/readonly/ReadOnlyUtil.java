@@ -9,6 +9,7 @@ import javax.servlet.ServletException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
+import org.kohsuke.stapler.Stapler;
 import org.xml.sax.SAXException;
 
 /**
@@ -19,10 +20,12 @@ import org.xml.sax.SAXException;
 public class ReadOnlyUtil {
 
 
-    public static String transformInputsToReadOnly(String source) throws IOException, SAXException, ParserConfigurationException, TransformerConfigurationException, TransformerException {
+    public static String transformInputsToReadOnly(String source, String taskUrl) throws IOException, SAXException, ParserConfigurationException, TransformerConfigurationException, TransformerException {
         
         StringBuffer buffer = new StringBuffer(source);
         int position=0;
+        int divTaskCount =0;
+        int divIncludedCount=0;
         while (true) {
             position = buffer.indexOf("<", position);
             if (position == -1) {
@@ -45,6 +48,31 @@ public class ReadOnlyUtil {
             if (tag.startsWith("<option")) {
                 String replacement = readonlyOption(tag);
                 buffer.replace(position, end, replacement);
+            }
+            if(taskUrl!=null && tag.startsWith("<div")){
+                if(tag.contains("class=\"task\"")){
+                    divTaskCount++;
+                }
+                else{
+                    if(divTaskCount>0)
+                        divIncludedCount++;
+                }
+            }
+            if(divTaskCount>0 && tag.startsWith("<a href")){
+                int hrefValueStart = buffer.indexOf("\"", position)+1;
+                int hrefValueEnd = buffer.indexOf("\"", hrefValueStart);
+                String hrefValue = buffer.substring(hrefValueStart, hrefValueEnd);
+                if(!(hrefValue.startsWith(taskUrl) || hrefValue.startsWith(Stapler.getCurrentRequest().getRootPath())))
+                    buffer.replace(hrefValueStart, hrefValueEnd, taskUrl + hrefValue);
+            }
+            if(tag.startsWith("<\\div")){
+                if(divIncludedCount>0){
+                    divIncludedCount--;
+                }
+                else{
+                   divTaskCount--; 
+                }
+                    
             }
             position=end;
         }
